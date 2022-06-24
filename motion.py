@@ -40,6 +40,12 @@ class MotionModel:
         self.motion_action = None
         self.tpf = .03#2TimePerFrame
 
+    def stop(self):
+        self.speed = 0
+        self.target_position = None
+        self.hover = 0
+        self.moving_angle = None
+
     def set_position(self, position):
         self.position = position
 

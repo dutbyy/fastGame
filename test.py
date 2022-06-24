@@ -26,22 +26,33 @@ def Prender(render, obs):
     }
     data = [
         {
-            'name':f'{unit["name"]}',
-            'uid': unit['uid'],
+            'name':f'{unit["name"]}-{unit["uid"]}-',
+            'uid': unit['health'],
             'icon': icon[unit["name"]],
             'position':[unit['position'][1], unit['position'][0]],
             'side': unit['side'],
             'iconsize': 24,
             'textsize': 9
         }
-        for unit in obs['units'] if '红方士兵' not in unit['name']
+        for unit in obs['units'] if '红方士兵' not in unit['name'] and unit['isalive']
     ]
+    xdata = [
+        {
+            "name": "",
+            'icon': 'dead',
+            'position':[unit['position'][1], unit['position'][0]],
+            'side': unit['side'],
+            'iconsize': 24,
+        }
+        for unit in obs['units'] if '红方士兵' not in unit['name'] and not unit['isalive']
+    ]
+    #render.update({"units": data+xdata})
     render.update({"units": data})
 
 def main():
     player = Player()
     game = FastGame(config)
-    render = init_render()
+    #render = init_render()
     while True:
         print('start a new game')
         game.reset()
@@ -50,10 +61,12 @@ def main():
             for i in range(10):
                 game.inference(30)
                 obs, done = game.obs()
-                Prender(render, obs)
-            commands = player.make_cmd(obs)
+                #Prender(render, obs)
+                if done:
+                    break
             if done:
                 break
+            commands = player.make_cmd(obs)
             game.step(commands)
 
 

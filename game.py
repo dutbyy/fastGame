@@ -17,7 +17,18 @@ class FastGame:
         self.controller.step(commands)
 
     def obs(self):
-        return self.controller.obs(), self.controller.frame > 30*60*20
+        game_over = False
+        if self.controller.frame > 30*60*120:
+            game_over = True
+        elif len([1 for unit in self.controller.unit_mgr.units.values() if unit.side == 'blue' and unit.isalive]) <= 0:
+            game_over = True
+        elif len([1 for unit in self.controller.unit_mgr.units.values() if unit.side == 'red' and unit.isalive]) <= 18:
+            game_over = True
+        if game_over :
+            print('!!!'*10)
+            print('Game Over!')
+            print('!!!'*10)
+        return self.controller.obs(), game_over
 
     def inference(self, sim_time):
         self.controller.run_frame(30)

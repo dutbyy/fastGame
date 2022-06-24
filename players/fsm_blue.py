@@ -54,7 +54,8 @@ class ActionGenerator:
             "SoldEventWaiting":         self.NoneFunc,
             "SoldSupportMoving":        self.SoldTransport,
             "SoldSupportLeftMoving":    self.SoldTransportLeft,
-            "SoldSupportRightMoving":   self.SoldTransportRight
+            "SoldSupportRightMoving":   self.SoldTransportRight,
+            "AutoAttackAll":            self.AutoAttackAll,
         }
 
     def generate(self, status_list):
@@ -176,6 +177,71 @@ class ActionGenerator:
         cmd = MoveToPointSold(SoldId[idx], SoldLeftPos[idx][0], SoldLeftPos[idx][1], 10)
         return cmd
 
+    def AutoAttackAll(self, idx):
+        import json
+        for unit in self.state.unit_dict.values():
+            if unit.side == 'blue':
+                self.auto_attack(unit.uid)
+
+    def auto_attack(self, uid):
+        unit = self.state.unit_dict[uid]
+        if not unit.isalive:
+            return
+        max_weight = -1
+        tid = -1
+        for target in self.state.blue.qbs:
+            if not target.isalive:
+                continue
+            weight = self.calc_weight(unit, target)
+            if weight > max_weight:
+                tid = target.uid
+                max_weight = weight
+        if tid > 0:
+            self.attack(uid, tid)
+
+    def Distance3D(self, uid, poi):
+        unit = self.state.unit_dict[uid]
+        return ( (unit.x - poi[0])**2 + (unit.y - poi[1])**2 + (unit.z - poi[2])**2 )**0.5
+
+    def calc_weight(self, unit, target):
+        weight = -1
+        dis = self.Distance3D(unit.uid, [target.x, target.y, target.z])
+        if unit.type == '坦克':
+            if dis < 900:
+                weight = 900 - dis
+                if target.type in ['坦克', '步战车', '无人车']:
+                    weight += 800
+                elif target.type == '无人机':
+                    weight += 100
+                elif target.type == '士兵':
+                    weight += 500
+                else:
+                    weight = -1
+        elif unit.type == '步战车':
+            if dis < 800:
+                weight = 900 - dis
+                if target.type in ['坦克', '步战车', '无人车']:
+                    weight += 500
+                elif target.type == '士兵':
+                    weight += 400
+                else:
+                    weight = -1
+        elif unit.type == '士兵':
+            if dis < 500:
+                weight = 500 - dis
+                if target.type in ['坦克', '步战车', '无人车']:
+                    weight += 400
+                elif target.type == '士兵':
+                    weight += 500
+                else:
+                    weight = -1
+        return weight
+
+    def attack(self, uid, tid):
+        cmd = FireTargetTank(uid, tid, 1)
+        self.cmds.append(cmd)
+
+
 class StatusTransfer:
     def __init__(self):
         self.trans_function_map = {
@@ -200,6 +266,8 @@ class StatusTransfer:
             "SoldSupportMoving":        self.sold_support_moving,
             "SoldSupportLeftMoving":    self.sold_support_left_moving,
             "SoldSupportRightMoving":   self.sold_support_right_moving,
+            #----------------------------------------------
+            "AutoAttackAll":            self.auto_attack_all,
         }
         self.reset()
 
@@ -420,6 +488,9 @@ class StatusTransfer:
         else:
             return SoldSupportRightMoving
 
+    def auto_attack_all(self, idx):
+        return "AutoAttackAll"
+
 class FSMController:
     def __init__(self):
         self.action_executor = ActionGenerator()
@@ -431,6 +502,7 @@ class FSMController:
         [status.append(UnitStatus("UavInit", i)) for i in range(3)]
         [status.append(UnitStatus("TankInit", i)) for i in range(4)]
         [status.append(UnitStatus("SoldInit", i)) for i in range(6)]
+        status.append(UnitStatus('AutoAttackAll', -1))
         self.status = status
 
     def reset(self):

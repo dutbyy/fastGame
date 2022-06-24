@@ -30,7 +30,7 @@ class Player:
                         'Y': unit['position'][1],
                         'Z': unit['position'][2],
                         'DA': unit.get('health', 100),
-                        'WH': 1,
+                        'WH': unit.get('isalive', 1),
                         'WP': {}
                     }
                     for unit in obs['units'] if unit['side'] == 'red'
@@ -39,13 +39,13 @@ class Player:
                     {
                         'XH': unit['name'],
                         'ID': unit['uid'],
-                        'JB': 1,
+                        'JB': 0,
                         'SP': unit['speed'],
                         'X': unit['position'][0],
                         'Y': unit['position'][1],
                         'Z': unit['position'][2],
                         'DA': unit.get('health', 100),
-                        'WH': 1,
+                        'WH': unit.get('isalive', 1),
                         'WP': {}
                     }
                     for unit in obs['units'] if unit['side'] == 'blue'
@@ -56,13 +56,13 @@ class Player:
                     {
                         'XH': unit['name'],
                         'ID': unit['uid'],
-                        'JB': 1,
+                        'JB': 0,
                         'SP': unit['speed'],
                         'X': unit['position'][0],
                         'Y': unit['position'][1],
                         'Z': unit['position'][2],
                         'DA': unit.get('health', 100),
-                        'WH': 1,
+                        'WH': unit.get('isalive', 1),
                         'WP': {}
                     }
                     for unit in obs['units'] if unit['side'] == 'blue'
@@ -77,7 +77,7 @@ class Player:
                         'Y': unit['position'][1],
                         'Z': unit['position'][2],
                         'DA': unit.get('health', 100),
-                        'WH': 1,
+                        'WH': unit.get('isalive', 1),
                         'WP': {}
                     }
                     for unit in obs['units'] if unit['side'] == 'red'
@@ -85,9 +85,10 @@ class Player:
             }
         }
         state = Observation(state)
+        stime = time.time()
         all_cmds = []
         for player in self.env_players:
             cmds = player.step(state)
             all_cmds.extend(cmds)
-        #time.sleep(1)
+        etime = time.time()
         return all_cmds
