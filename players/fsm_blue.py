@@ -1,6 +1,7 @@
 import math
-from players.actions import *
+from fastGame.players.actions import *
 from mylog import debug_print
+import random
 
 Uavid = [39, 40, 41]
 Uav_pos = [[3000, 7000], [2000, 8000], [3000, 9000]]
@@ -227,7 +228,7 @@ class ActionGenerator:
                 else:
                     weight = -1
         elif unit.type == '士兵':
-            if dis < 500:
+            if dis < 0:#500:
                 weight = 500 - dis
                 if target.type in ['坦克', '步战车', '无人车']:
                     weight += 400
@@ -238,7 +239,27 @@ class ActionGenerator:
         return weight
 
     def attack(self, uid, tid):
-        cmd = FireTargetTank(uid, tid, 1)
+        unit = self.state.unit_dict[uid]
+        target = self.state.unit_dict[tid]
+        cmd = None
+        if unit.type == '步战车':
+            if target.type in ['坦克', '步战车', '无人车']:
+                shell_type = 1 # random.choice([1,8])
+            elif target.type == '无人机' :
+                shell_type = 3
+            else:
+                shell_type = 4
+            cmd = FireTargetIcv(uid, tid, shell_type)
+        elif unit.type == '坦克':
+            if target.type in ['坦克', '步战车', '无人车']:
+                shell_type = random.choice([1, 2])
+            elif target.type == '无人机' :
+                shell_type = 3
+            elif target.type == '士兵':
+                shell_type = 4
+            cmd = FireTargetTank(uid, tid, shell_type)
+        else:
+            cmd = FireTargetTank(uid, tid, 4)
         self.cmds.append(cmd)
 
 

@@ -1,6 +1,6 @@
 import math
 import random
-from players.actions import *
+from fastGame.players.actions import *
 from mylog import red_debug_print as debug_print
 CONTROL_TANK = True
 
@@ -292,7 +292,7 @@ class ActionGenerator:
                 if target.type in ['坦克', '步战车']:
                     weight += 800
                 elif target.type == '无人机':
-                    weight += 100
+                    weight += 600
                 elif target.type == '士兵':
                     weight += 500
                 else:
@@ -301,6 +301,8 @@ class ActionGenerator:
             if dis < 900:
                 weight = 900 - dis
                 if target.type in ['坦克', '步战车']:
+                    weight += 600
+                elif target.type == '无人机':
                     weight += 500
                 elif target.type == '士兵':
                     weight += 400
@@ -342,26 +344,20 @@ class ActionGenerator:
             cmd = FireTargetWrc(uid, tid)
         elif unit.type == '步战车':
             if target.type in ['坦克', '步战车']:
-                shell_type = random.choice([1,8])
+                shell_type = 1 # random.choice([1,8])
             elif target.type == '无人机' :
-                shell_type = 7
+                shell_type = 3
             else:
-                shell_type = 1
+                shell_type = 4
             cmd = FireTargetIcv(uid, tid, shell_type)
         elif unit.type == '坦克':
-            if target.type in ['坦克', '步战车', '士兵']:
-                shells = []
-                for k, v in self.shells[uid].items():
-                    if v>0 and k in [1,2,3]:
-                        shells.append(k)
-                if not len(shells):
-                    return
-                shell_type = random.choice(shells)
-                self.shells[uid][shell_type] -= 1
-            else:
-                shell_type = 7
+            if target.type in ['坦克', '步战车']:
+                shell_type = random.choice([1, 2])
+            elif target.type == '无人机' :
+                shell_type = 3
+            elif target.type == '士兵':
+                shell_type = 4
             cmd = FireTargetTank(uid, tid, shell_type)
-            debug_print(f"Tank Attack cmd : [{cmd}]")
         else:
             return
         self.cmds.append(cmd)

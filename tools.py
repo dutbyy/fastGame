@@ -1,4 +1,4 @@
-from motion import MotionAction
+from fastGame.motion import MotionAction
 import math
 def gen_cmd(cmd):
     if cmd['name'] == 'move_to_point':
@@ -18,7 +18,7 @@ def gen_cmd(cmd):
         action.hover = cmd['hover']
         action.speed = cmd['speed']
     elif cmd['name'] == 'fire':
-        from weapon import AttackAction
+        from fastGame.weapon import AttackAction
         action = AttackAction()
         action.uid = cmd['uid']
         action.tid = cmd['tid']

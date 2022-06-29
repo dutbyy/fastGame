@@ -1,8 +1,8 @@
-import motion
-from motion import MotionAction
-from weapon import AttackAction
-import weapon
-from tools import gen_cmd
+from fastGame import motion
+from fastGame.motion import MotionAction
+from fastGame.weapon import AttackAction
+from fastGame import weapon
+from fastGame.tools import gen_cmd
 
 class Unit:
     def __init__(self):
@@ -29,6 +29,8 @@ class Unit:
             elif type(action) == AttackAction:
                 unit = self.umgr.get_unit(action.uid)
                 target = self.umgr.get_unit(action.tid)
+                if unit.uid == 3:
+                    print('Unit 3 is Attacking')
                 dmg, info = self.weapon.attack(action.wtype, unit, target)
                 if dmg >= 0:
                     target.health -= int(dmg)

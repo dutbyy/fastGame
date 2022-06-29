@@ -52,22 +52,23 @@ def Prender(render, obs):
 def main():
     player = Player()
     game = FastGame(config)
-    #render = init_render()
+    render = init_render()
     while True:
         print('start a new game')
         game.reset()
         player.reset()
+        obs, done = game.obs()
         while True :
-            for i in range(10):
-                game.inference(30)
+            for i in range(30):
+                game.inference(10)
+                commands = player.make_cmd(obs)
+                game.step(commands)
                 obs, done = game.obs()
-                #Prender(render, obs)
+                Prender(render, obs)
                 if done:
                     break
             if done:
                 break
-            commands = player.make_cmd(obs)
-            game.step(commands)
 
 
 

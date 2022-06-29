@@ -1,5 +1,5 @@
-from unit import UnitMgr
-from issue import IssueMgr
+from fastGame.unit import UnitMgr
+from fastGame.issue import IssueMgr
 
 class Controller:
     # 初始化单元管理和事件管理
@@ -25,6 +25,7 @@ class Controller:
     # 控制仿真向前推进一帧
     def run_frame(self, frame=1):
         for i in range(frame):
+            print(self.frame)
             self.frame+=1
             self.unit_mgr.run_frame()
             self.issue_mgr.run_frame()

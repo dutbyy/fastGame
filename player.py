@@ -1,6 +1,6 @@
-from players.fsm_red import FSMController as RedPlayer
-from players.fsm_blue import FSMController as BluePlayer
-from players.obs import Observation
+from fastGame.players.fsm_red import FSMController as RedPlayer
+from fastGame.players.fsm_blue import FSMController as BluePlayer
+from fastGame.players.obs import Observation
 import time
 
 class Player:
